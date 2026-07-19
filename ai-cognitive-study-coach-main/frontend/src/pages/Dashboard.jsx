@@ -16,37 +16,31 @@ export default function Dashboard() {
   }
 
   return (
-    <>
-      <h1 style={{ textAlign: "center", marginTop: "20px", fontSize: "28px", color: "#c7d2fe" }}>
-        AI Study Coach
-      </h1>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", padding: "20px", justifyContent: "center" }}>
+      <Card title="📊 Summary">
+        <p>{data.summary?.total_sessions ?? 0} sessions</p>
+        <p>{data.summary?.total_hours ?? 0} hrs</p>
+        <p>{data.summary?.avg_session_minutes ?? 0} min avg</p>
+      </Card>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", padding: "20px", justifyContent: "center" }}>
-        <Card title="📊 Summary">
-          <p>{data.summary?.total_sessions ?? 0} sessions</p>
-          <p>{data.summary?.total_hours ?? 0} hrs</p>
-          <p>{data.summary?.avg_session_minutes ?? 0} min avg</p>
-        </Card>
+      <Card title="⏱ Best Time">
+        <p>{data.bestTime?.best_hour ?? "Not enough data yet"}</p>
+        <p>{data.bestTime?.insight}</p>
+      </Card>
 
-        <Card title="⏱ Best Time">
-          <p>{data.bestTime?.best_hour ?? "Not enough data yet"}</p>
-          <p>{data.bestTime?.insight}</p>
-        </Card>
+      <Card title="🔥 Burnout">
+        <p>{data.burnout?.burnout_risk}</p>
+        <p>{data.burnout?.recommendation}</p>
+      </Card>
 
-        <Card title="🔥 Burnout">
-          <p>{data.burnout?.burnout_risk}</p>
-          <p>{data.burnout?.recommendation}</p>
-        </Card>
+      <Card title="☕ Break">
+        <p>{data.breakRec?.recommendation}</p>
+      </Card>
 
-        <Card title="☕ Break">
-          <p>{data.breakRec?.recommendation}</p>
-        </Card>
-
-        <Card title="🧠 Prediction">
-          <p>{data.prediction?.predicted_duration} min</p>
-          <p>{data.prediction?.insight}</p>
-        </Card>
-      </div>
-    </>
+      <Card title="🧠 Prediction">
+        <p>{data.prediction?.predicted_duration} min</p>
+        <p>{data.prediction?.insight}</p>
+      </Card>
+    </div>
   );
 }

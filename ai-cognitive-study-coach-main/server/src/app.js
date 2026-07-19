@@ -1,18 +1,14 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import pool from "./db/db.js";
 import sessionRoutes from "./routes/sessionRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-
-
 
 // Routes from routes folder, mounted under /api to match the frontend's API base URL
 app.use("/api", sessionRoutes);
@@ -33,6 +29,7 @@ app.get("/version", (req, res) => {
     version: "1.0.0"
   });
 });
+
 // Test database connection
 async function testDB() {
   try {
@@ -42,8 +39,6 @@ async function testDB() {
     console.error("Database connection error", err);
   }
 }
-
-
 
 // Start server
 app.listen(PORT, () => {

@@ -1,0 +1,38 @@
+# Render "Blueprint" — lets you deploy the backend + a managed Postgres
+# instance from this repo in one step via https://render.com/deploy
+services:
+  - type: web
+    name: ai-study-coach-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/src/app.js
+    envVars:
+      - key: DB_USER
+        fromDatabase:
+          name: ai-study-coach-db
+          property: user
+      - key: DB_HOST
+        fromDatabase:
+          name: ai-study-coach-db
+          property: host
+      - key: DB_NAME
+        fromDatabase:
+          name: ai-study-coach-db
+          property: database
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ai-study-coach-db
+          property: password
+      - key: DB_PORT
+        fromDatabase:
+          name: ai-study-coach-db
+          property: port
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+databases:
+  - name: ai-study-coach-db
+    plan: free

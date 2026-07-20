@@ -8,10 +8,11 @@ export const getFatigue = async (req, res) => {
         ROUND(AVG(EXTRACT(EPOCH FROM (end_time - start_time)) / 60))
         AS avg_fatigue_duration
       FROM study_sessions
-      WHERE fatigue_rating >= 3
+      WHERE user_id = $1
+      AND fatigue_rating >= 3
       AND end_time IS NOT NULL
       AND (end_time - start_time) < INTERVAL '5 hours'
-    `);
+    `, [req.userId]);
 
     const value = result.rows[0]?.avg_fatigue_duration;
 
@@ -39,11 +40,12 @@ export const getOptimalSession = async (req, res) => {
         ROUND(AVG(EXTRACT(EPOCH FROM (end_time - start_time)) / 60))
         AS optimal_session_minutes
       FROM study_sessions
-      WHERE focus_rating >= 4
-      AND subject = $1
+      WHERE user_id = $1
+      AND focus_rating >= 4
+      AND subject = $2
       AND end_time IS NOT NULL
       AND (end_time - start_time) < INTERVAL '5 hours'
-    `, [subject]);
+    `, [req.userId, subject]);
 
     const value = result.rows[0]?.optimal_session_minutes;
 
@@ -71,8 +73,9 @@ export const getSummary = async (req, res) => {
         ROUND(SUM(EXTRACT(EPOCH FROM (end_time - start_time)) / 3600), 2) AS total_hours,
         ROUND(AVG(EXTRACT(EPOCH FROM (end_time - start_time)) / 60), 2) AS avg_session_minutes
       FROM study_sessions
-      WHERE end_time IS NOT NULL
-    `);
+      WHERE user_id = $1
+      AND end_time IS NOT NULL
+    `, [req.userId]);
 
     const data = result.rows[0];
 
@@ -101,9 +104,10 @@ export const getSubjectPerformance = async (req, res) => {
         ROUND(AVG(EXTRACT(EPOCH FROM (end_time - start_time)) / 60), 2)
         AS avg_duration_minutes
       FROM study_sessions
-      WHERE end_time IS NOT NULL
+      WHERE user_id = $1
+      AND end_time IS NOT NULL
       GROUP BY subject
-    `);
+    `, [req.userId]);
 
     const cleaned = result.rows.map(r => ({
       subject: r.subject,
@@ -130,10 +134,11 @@ export const getStudyPlan = async (req, res) => {
         ROUND(AVG(EXTRACT(EPOCH FROM (end_time - start_time)) / 60))
         AS recommended_minutes
       FROM study_sessions
-      WHERE focus_rating >= 4
+      WHERE user_id = $1
+      AND focus_rating >= 4
       AND end_time IS NOT NULL
       AND (end_time - start_time) < INTERVAL '5 hours'
-    `);
+    `, [req.userId]);
 
     const recommended = result.rows[0]?.recommended_minutes;
 
@@ -160,10 +165,11 @@ export const getBurnoutRisk = async (req, res) => {
         fatigue_rating,
         focus_rating
       FROM study_sessions
-      WHERE end_time IS NOT NULL
+      WHERE user_id = $1
+      AND end_time IS NOT NULL
       ORDER BY start_time DESC
       LIMIT 5
-    `);
+    `, [req.userId]);
 
     const sessions = result.rows;
 
@@ -226,10 +232,11 @@ export const getBreakRecommendation = async (req, res) => {
         EXTRACT(EPOCH FROM (end_time - start_time)) / 60 AS duration_minutes,
         fatigue_rating
       FROM study_sessions
-      WHERE end_time IS NOT NULL
+      WHERE user_id = $1
+      AND end_time IS NOT NULL
       ORDER BY start_time DESC
       LIMIT 3
-    `);
+    `, [req.userId]);
 
     const sessions = result.rows;
 
@@ -281,10 +288,11 @@ export const predictSessionDuration = async (req, res) => {
         focus_rating,
         fatigue_rating
       FROM study_sessions
-      WHERE subject = $1
+      WHERE user_id = $1
+      AND subject = $2
       AND end_time IS NOT NULL
       AND (end_time - start_time) < INTERVAL '5 hours'
-    `, [subject]);
+    `, [req.userId, subject]);
 
     const sessions = result.rows;
 
@@ -342,11 +350,12 @@ export const getBestStudyTime = async (req, res) => {
         AVG(fatigue_rating) AS avg_fatigue,
         COUNT(*) as sessions
       FROM study_sessions
-      WHERE end_time IS NOT NULL
+      WHERE user_id = $1
+      AND end_time IS NOT NULL
       GROUP BY EXTRACT(HOUR FROM start_time)
       ORDER BY avg_focus DESC, avg_fatigue ASC
       LIMIT 1
-    `);
+    `, [req.userId]);
 
     if (result.rows.length === 0) {
       return res.json({

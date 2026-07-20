@@ -1,0 +1,39 @@
+# Local dev convenience: spins up Postgres + the backend together.
+# Run `docker compose up`, then run the frontend separately with
+# `cd frontend && npm run dev` (Vite's dev server isn't containerized here
+# since hot-reload through Docker volumes is more friction than it's worth
+# for a student project).
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: studycoach
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./server/src/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  backend:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DB_USER: postgres
+      DB_HOST: db
+      DB_NAME: studycoach
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PORT: 5432
+      PORT: 5000
+      JWT_SECRET: ${JWT_SECRET}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    ports:
+      - "5000:5000"
+
+volumes:
+  pgdata:

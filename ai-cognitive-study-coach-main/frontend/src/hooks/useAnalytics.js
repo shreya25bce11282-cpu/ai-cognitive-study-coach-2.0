@@ -5,6 +5,7 @@ import {
   getBurnoutRisk,
   getBreakRecommendation,
   predictSessionDuration,
+  getAiInsight,
 } from "../services/api";
 
 // Fetches every dashboard analytics endpoint in parallel and hands back
@@ -18,15 +19,16 @@ export default function useAnalytics(subject = "Math") {
     setLoading(true);
     setError(null);
     try {
-      const [summary, bestTime, burnout, breakRec, prediction] = await Promise.all([
+      const [summary, bestTime, burnout, breakRec, prediction, aiInsight] = await Promise.all([
         getSummary(),
         getBestStudyTime(),
         getBurnoutRisk(),
         getBreakRecommendation(),
         predictSessionDuration(subject),
+        getAiInsight(),
       ]);
 
-      setData({ summary, bestTime, burnout, breakRec, prediction });
+      setData({ summary, bestTime, burnout, breakRec, prediction, aiInsight });
     } catch (err) {
       console.error("Error fetching analytics:", err);
       setError(err);
